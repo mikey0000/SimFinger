@@ -147,14 +147,21 @@ void WindowFrameDidChangeCallback( AXObserverRef observer, AXUIElementRef elemen
             BOOL landscape6 = NO;
 			int iPhoneWidth = 320;
 			int iPhoneHeight = 502;
+            int iPadAirWidth = 384;
+            int iPadAirHeight = 534;
 			int iPadWidth = 790;
 			int iPadHeight = 1024;
             int iPhone5Width = 320;
             int iPhone5Height = 590;
             int iPhone6Width = 375;
             int iPhone6Height = 689;
+            
+            if ((int)size.width == iPadAirWidth && (int)size.height == iPadAirHeight) {
+                [hardwareOverlay setContentSize:NSMakeSize(460, 650)];
+                [hardwareOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"iPadFrame"]]];
+            }
 			
-			if((int)size.width == iPhoneWidth && (int)size.height == iPhoneHeight) {
+			else if((int)size.width == iPhoneWidth && (int)size.height == iPhoneHeight) {
 				[hardwareOverlay setContentSize:NSMakeSize(634, 985)];
 				[hardwareOverlay setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"iPhoneFrame"]]];
 				
@@ -534,8 +541,13 @@ CGEventRef tapCallBack(CGEventTapProxy proxy, CGEventType type, CGEventRef event
 	CFRelease(tap);
 	
 	[self registerForSimulatorWindowResizedNotification];
-	[self positionSimulatorWindow:nil];
-	hideTheCursor();
+    NSDictionary *options = @{(id)kAXTrustedCheckOptionPrompt: @YES};
+    BOOL accessibilityEnabled = AXIsProcessTrustedWithOptions((CFDictionaryRef)options);
+    if (accessibilityEnabled) {
+        [self positionSimulatorWindow:nil];
+        hideTheCursor();
+    }
+	
     
 	NSLog(@"Repositioned simulator window.");
 }
